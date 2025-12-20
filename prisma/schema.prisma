@@ -1,0 +1,185 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model Student {
+  id                    String                  @id @default(cuid())
+  firstName             String
+  lastName              String
+  dateOfBirth           DateTime
+  age                   Int
+  educationLevel        String                  // "primary" or "secondary"
+  school                String
+  grade                 String
+  subjects              String[]
+  csecSubjects          String[]
+  careerGoals           String?
+  parentName            String
+  parentPhone           String
+  parentEmail           String
+  address               String
+  emergencyContact      String
+  registeredAt          DateTime                @default(now())
+  sessions              Session[]
+  assessments           Assessment[]
+  registrationAssessment RegistrationAssessment?
+  createdAt             DateTime                @default(now())
+  updatedAt             DateTime                @updatedAt
+
+  @@index([educationLevel])
+  @@index([school])
+}
+
+model RegistrationAssessment {
+  id                        String   @id @default(cuid())
+  studentId                 String   @unique
+  
+  // Behavioral Assessment
+  attentionSpan             String
+  participationLevel        String
+  peerInteraction           String
+  rulesFollowing            String
+  selfControl               String
+  
+  // Educational Assessment
+  readingLevel              String
+  writingSkills             String
+  mathSkills                String
+  scienceInterest           String
+  englishProficiency        String
+  studyHabits               String
+  homeworkCompletion        String
+  
+  // Social Assessment
+  teamworkSkills            String
+  communicationSkills       String
+  friendships               String
+  conflictResolution        String
+  leadershipPotential       String
+  
+  // Family & Home Life
+  breakfastFrequency        String
+  homeworkSupport           String
+  studyEnvironment          String
+  familyStructure           String
+  
+  // Health & Wellness
+  sleepQuality              String
+  energyLevels              String
+  visionHearing             String
+  physicalActivity          String
+  
+  // Additional Notes
+  strengths                 String?
+  areasForImprovement       String?
+  specialNeeds              String?
+  notes                     String?
+  
+  student                   Student  @relation(fields: [studentId], references: [id], onDelete: Cascade)
+  createdAt                 DateTime @default(now())
+  updatedAt                 DateTime @updatedAt
+
+  @@index([studentId])
+}
+
+model Volunteer {
+  id                        String    @id @default(cuid())
+  firstName                 String
+  lastName                  String
+  email                     String    @unique
+  phone                     String
+  address                   String
+  occupation                String
+  expertise                 String[]
+  availability              String[]
+  backgroundCheckCompleted  Boolean   @default(false)
+  backgroundCheckDate       DateTime?
+  joinedAt                  DateTime  @default(now())
+  sessions                  Session[]
+  createdAt                 DateTime  @default(now())
+  updatedAt                 DateTime  @updatedAt
+
+  @@index([email])
+}
+
+model Session {
+  id          String    @id @default(cuid())
+  studentId   String
+  volunteerId String
+  date        DateTime
+  startTime   String
+  endTime     String
+  subject     String
+  topics      String[]
+  notes       String?
+  status      String    @default("scheduled")
+  
+  // Assessment fields
+  attentiveness         String?
+  participation         String?
+  understanding         String?
+  homework              String?
+  behavior              String?
+  progressNotes         String?
+  areasOfConcern        String?
+  followUpRequired      Boolean   @default(false)
+  
+  student     Student   @relation(fields: [studentId], references: [id], onDelete: Cascade)
+  volunteer   Volunteer @relation(fields: [volunteerId], references: [id], onDelete: Cascade)
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+
+  @@index([studentId])
+  @@index([volunteerId])
+  @@index([date])
+  @@index([status])
+}
+
+model Assessment {
+  id              String   @id @default(cuid())
+  studentId       String
+  date            DateTime
+  subject         String
+  assessmentType  String   // "quiz", "test", "exam", "mock_exam", "csec_practice"
+  score           Int
+  maxScore        Int
+  percentage      Float
+  grade           String?
+  topicsAssessed  String[]
+  strengths       String?
+  weaknesses      String?
+  notes           String?
+  
+  student         Student  @relation(fields: [studentId], references: [id], onDelete: Cascade)
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+
+  @@index([studentId])
+  @@index([date])
+  @@index([assessmentType])
+}
+
+model Parent {
+  id              String   @id @default(cuid())
+  firstName       String
+  lastName        String
+  email           String   @unique
+  phone           String
+  address         String
+  occupation      String?
+  relationship    String   // "mother", "father", "guardian"
+  studentIds      String[]
+  
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+
+  @@index([email])
+}
