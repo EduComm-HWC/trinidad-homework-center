@@ -3,9 +3,10 @@ import { db } from '@/lib/db'
 
 export async function DELETE(
   request: Request,
-  { params }: { params: { id: string } }
+  props: { params: Promise<{ id: string }> }
 ) {
   try {
+    const params = await props.params
     await db.student.delete({
       where: { id: params.id },
     })
@@ -22,9 +23,10 @@ export async function DELETE(
 
 export async function GET(
   request: Request,
-  { params }: { params: { id: string } }
+  props: { params: Promise<{ id: string }> }
 ) {
   try {
+    const params = await props.params
     const student = await db.student.findUnique({
       where: { id: params.id },
       include: {
