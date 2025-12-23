@@ -13,20 +13,512 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
+// User management
 model User {
-  id        String   @id @default(cuid())
-  email     String   @unique
-  name      String?
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
+  id            String   @id @default(cuid())
+  email         String   @unique
+  name          String?
+  role          UserRole @default(STUDENT)
+  password      String
+  avatar        String?
+  phone         String?
+  dateOfBirth   DateTime?
+  address       String?
+  parish        String?
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+
+  // Relations
+  student       Student?
+  volunteer     Volunteer?
+  parent        Parent?
+  sessions      Session[]
+  assessments   Assessment[]
+  testResults   TestResult[]
+  notifications Notification[]
+  videoSessions VideoSession[]
+  aiRecommendations AIRecommendation[]
+
+  @@map("users")
 }
 
-model Post {
-  id        String   @id @default(cuid())
+enum UserRole {
+  STUDENT
+  PARENT
+  VOLUNTEER
+  ADMIN
+}
+
+// Student management
+model Student {
+  id           String    @id @default(cuid())
+  userId       String    @unique
+  firstName    String
+  lastName     String
+  grade        String    // Standard 1-5, Forms 1-6
+  school       String
+  schoolType   SchoolType @default(PRIMARY)
+  subjects     String    // JSON string of subjects
+  careerGoals  String?
+  strengths    String?
+  weaknesses   String?
+  learningStyle String?
+  emergencyContact String?
+  medicalInfo  String?
+  enrolledAt   DateTime  @default(now())
+  isActive     Boolean   @default(true)
+  parentId     String?
+
+  // Relations
+  user         User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  parent       Parent?   @relation(fields: [parentId], references: [id])
+  sessions     Session[]
+  assessments  Assessment[]
+  testResults  TestResult[]
+  progress     Progress[]
+  seaTests     SEATest[]
+  csecTests    CSECTest[]
+  registrationAssessment RegistrationAssessment?
+
+  @@map("students")
+}
+
+enum SchoolType {
+  PRIMARY
+  SECONDARY
+}
+
+// Parent/Guardian management
+model Parent {
+  id            String   @id @default(cuid())
+  userId        String   @unique
+  occupation    String?
+  workplace     String?
+  relationship  String?  // Father, Mother, Guardian, etc.
+  canVolunteer  Boolean  @default(false)
+  availability  String?  // Weekdays, Weekends, etc.
+  communication Preference // Email, Phone, SMS
+
+  // Relations
+  user          User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  students      Student[]
+  registrationAssessments RegistrationAssessment[]
+
+  @@map("parents")
+}
+
+enum Preference {
+  EMAIL
+  PHONE
+  SMS
+}
+
+// Volunteer management
+model Volunteer {
+  id              String     @id @default(cuid())
+  userId          String     @unique
+  expertise       String     // JSON string of subjects
+  experience      String?    // Years of experience
+  qualifications  String     // JSON string of qualifications
+  availability    String     // JSON string of available times
+  backgroundCheck Boolean    @default(false)
+  checkDate       DateTime?
+  bio             String?
+  rating          Float?     @default(0)
+  totalSessions   Int        @default(0)
+  joinedAt        DateTime   @default(now())
+  isActive        Boolean    @default(true)
+
+  // Relations
+  user            User       @relation(fields: [userId], references: [id], onDelete: Cascade)
+  sessions        Session[]
+  aiRecommendations AIRecommendation[]
+
+  @@map("volunteers")
+}
+
+// Session management
+model Session {
+  id          String       @id @default(cuid())
+  studentId   String
+  volunteerId String
+  subject     String
+  topic       String?
+  date        DateTime
+  duration    Int          // minutes
+  status      SessionStatus @default(SCHEDULED)
+  location    String?      // Physical location or virtual
+  notes       String?
+  homework    String?
+  nextSession DateTime?
+  createdAt   DateTime     @default(now())
+  updatedAt   DateTime     @updatedAt
+  assessmentId String?
+
+  // Relations
+  student     Student      @relation(fields: [studentId], references: [id], onDelete: Cascade)
+  volunteer   Volunteer    @relation(fields: [volunteerId], references: [id], onDelete: Cascade)
+  user        User         @relation(fields: [volunteerId], references: [id], onDelete: Cascade)
+  assessment  Assessment?  @relation(fields: [assessmentId], references: [id])
+
+  @@map("sessions")
+}
+
+enum SessionStatus {
+  SCHEDULED
+  COMPLETED
+  CANCELLED
+  NO_SHOW
+}
+
+// Assessment management
+model Assessment {
+  id            String           @id @default(cuid())
+  studentId     String
+  assessorId    String
+  type          AssessmentType
+  date          DateTime         @default(now())
+  academicScore Float?
+  behaviorScore Float?
+  participationScore Float?
+  effortScore   Float?
+  improvement   String?
+  strengths     String?
+  weaknesses    String?
+  recommendations String?
+  nextSteps     String?
+  criteria      String?          // JSON string of detailed criteria
+
+  // Relations
+  student       Student          @relation(fields: [studentId], references: [id], onDelete: Cascade)
+  user          User             @relation(fields: [assessorId], references: [id])
+  assessmentCriteria AssessmentCriteria[]
+  sessions      Session[]
+
+  @@map("assessments")
+}
+
+enum AssessmentType {
+  SESSION
+  MONTHLY
+  QUARTERLY
+  ANNUAL
+  SEA_PRACTICE
+  CSEC_PRACTICE
+}
+
+model AssessmentCriteria {
+  id          String  @id @default(cuid())
+  category    String  // Academic, Behavioral, Personal, Social, Spiritual
+  criterion   String
+  score       Int     // 1-5 scale
+  comments    String?
+  assessmentId String
+
+  // Relations
+  assessment  Assessment @relation(fields: [assessmentId], references: [id], onDelete: Cascade)
+
+  @@map("assessment_criteria")
+}
+
+// Registration Assessment for comprehensive initial evaluation
+model RegistrationAssessment {
+  id                String   @id @default(cuid())
+  studentId         String   @unique
+  parentId          String
+  literacyScore     Float?
+  numeracyScore     Float?
+  readingLevel      String?
+  comprehensionLevel String?
+  writingLevel      String?
+  mathLevel         String?
+  scienceLevel      String?
+  socialStudiesLevel String?
+  learningStyle     String?
+  attentionSpan     String?
+  socialSkills      String?
+  emotionalDevelopment String?
+  physicalDevelopment String?
+  creativeAbilities String?
+  criticalThinking String?
+  problemSolving   String?
+  communicationSkills String?
+  teamworkSkills    String?
+  independence      String?
+  timeManagement    String?
+  organization     String?
+  homeworkHabits   String?
+  studySkills       String?
+  testTakingSkills String?
+  technologySkills String?
+  culturalAwareness String?
+  spiritualDevelopment String?
+  extracurricularInterests String?
+  specialNeeds     String?
+  medicalConsiderations String?
+  familySupport    String?
+  homeEnvironment  String?
+  economicChallenges String?
+  safetyConcerns   String?
+  goals            String?
+  recommendations  String?
+  assessorNotes    String?
+  assessedAt       DateTime @default(now())
+  nextAssessmentDate DateTime?
+
+  // Relations
+  student          Student  @relation(fields: [studentId], references: [id], onDelete: Cascade)
+  parent           Parent   @relation(fields: [parentId], references: [id])
+
+  @@map("registration_assessments")
+}
+
+// Progress tracking
+model Progress {
+  id          String   @id @default(cuid())
+  studentId   String
+  subject     String
+  grade       String  // Current grade level
+  score       Float?
+  improvement Float?
+  date        DateTime @default(now())
+  notes       String?
+
+  // Relations
+  student     Student  @relation(fields: [studentId], references: [id], onDelete: Cascade)
+
+  @@map("progress")
+}
+
+// SEA Test management
+model SEATest {
+  id          String     @id @default(cuid())
+  studentId   String
+  standard    String     // Standard 1-5
+  subject     String
+  testType    String     // Multiple Choice, True/False, Fill Blank, Short Answer, Picture-Based
+  questions   String     // JSON string of questions
+  answers     String     // JSON string of correct answers
+  duration    Int        // minutes
+  difficulty  String     // Easy, Medium, Hard
+  generatedAt DateTime   @default(now())
+  takenAt     DateTime?
+
+  // Relations
+  student     Student    @relation(fields: [studentId], references: [id], onDelete: Cascade)
+  results     TestResult[]
+
+  @@map("sea_tests")
+}
+
+// CSEC Test management
+model CSECTest {
+  id          String     @id @default(cuid())
+  studentId   String
+  form        String     // Form 1-6
+  subject     String
+  testType    String     // Multiple Choice, Essay, Practical, etc.
+  questions   String     // JSON string of questions
+  answers     String     // JSON string of correct answers
+  duration    Int        // minutes
+  difficulty  String     // Easy, Medium, Hard
+  generatedAt DateTime   @default(now())
+  takenAt     DateTime?
+
+  // Relations
+  student     Student    @relation(fields: [studentId], references: [id], onDelete: Cascade)
+  results     TestResult[]
+
+  @@map("csec_tests")
+}
+
+// Test results
+model TestResult {
+  id          String   @id @default(cuid())
+  testId      String
+  testType    TestType
+  studentId   String
+  userId      String
+  score       Float
+  totalScore  Float
+  percentage  Float
+  timeSpent   Int      // minutes
+  answers     String   // JSON string of student answers
+  feedback    String?
+  takenAt     DateTime @default(now())
+
+  // Relations
+  student     Student  @relation(fields: [studentId], references: [id], onDelete: Cascade)
+  user        User     @relation(fields: [userId], references: [id])
+  seaTest     SEATest? @relation(fields: [testId], references: [id])
+  csecTest    CSECTest? @relation(fields: [testId], references: [id])
+
+  @@map("test_results")
+}
+
+enum TestType {
+  SEA
+  CSEC
+  PRACTICE
+  ASSESSMENT
+}
+
+// AI Recommendations
+model AIRecommendation {
+  id            String   @id @default(cuid())
+  studentId     String
+  volunteerId   String?
+  userId        String?
+  type          RecommendationType
+  title         String
+  description   String
+  confidence    Float    // 0-1 confidence score
+  priority      Priority // Low, Medium, High, Critical
+  status        RecommendationStatus @default(PENDING)
+  metadata      String?  // JSON metadata
+  createdAt     DateTime @default(now())
+  expiresAt     DateTime?
+  implementedAt DateTime?
+
+  // Relations
+  volunteer     Volunteer? @relation(fields: [volunteerId], references: [id])
+  user          User?      @relation(fields: [userId], references: [id])
+
+  @@map("ai_recommendations")
+}
+
+enum RecommendationType {
+  TUTOR_MATCH
+  STUDY_PLAN
+  INTERVENTION
+  RESOURCE
+  SESSION_SCHEDULING
+  PERFORMANCE_ALERT
+}
+
+enum Priority {
+  LOW
+  MEDIUM
+  HIGH
+  CRITICAL
+}
+
+enum RecommendationStatus {
+  PENDING
+  IMPLEMENTED
+  REJECTED
+  EXPIRED
+}
+
+// Video conferencing sessions
+model VideoSession {
+  id          String   @id @default(cuid())
+  sessionId   String   @unique
+  title       String
+  description String?
+  hostId      String
+  participantIds String  // JSON string of participant user IDs
+  scheduledStart DateTime
+  scheduledEnd   DateTime
+  actualStart    DateTime?
+  actualEnd      DateTime?
+  meetingUrl     String?
+  meetingId      String?
+  password       String?
+  status         VideoSessionStatus @default(SCHEDULED)
+  recordingUrl   String?
+  notes          String?
+  createdAt      DateTime @default(now())
+  updatedAt      DateTime @updatedAt
+
+  // Relations
+  host          User     @relation(fields: [hostId], references: [id])
+
+  @@map("video_sessions")
+}
+
+enum VideoSessionStatus {
+  SCHEDULED
+  IN_PROGRESS
+  COMPLETED
+  CANCELLED
+  FAILED
+}
+
+// Notifications
+model Notification {
+  id        String           @id @default(cuid())
+  userId    String
   title     String
-  content   String?
-  published Boolean  @default(false)
-  authorId  String
+  message   String
+  type      NotificationType
+  isRead    Boolean          @default(false)
+  data      String?          // JSON metadata
+  createdAt DateTime         @default(now())
+  readAt    DateTime?
+
+  // Relations
+  user      User             @relation(fields: [userId], references: [id])
+
+  @@map("notifications")
+}
+
+enum NotificationType {
+  SESSION_REMINDER
+  TEST_RESULT
+  ASSESSMENT_COMPLETE
+  AI_RECOMMENDATION
+  VIDEO_SESSION_INVITE
+  SYSTEM_ANNOUNCEMENT
+  PROGRESS_UPDATE
+}
+
+// Email templates and logs
+model EmailLog {
+  id        String   @id @default(cuid())
+  to        String
+  subject   String
+  template  String
+  data      String?  // JSON metadata
+  status    EmailStatus @default(PENDING)
+  sentAt    DateTime?
+  error     String?
   createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
+
+  @@map("email_logs")
+}
+
+enum EmailStatus {
+  PENDING
+  SENT
+  FAILED
+  BOUNCED
+}
+
+// Analytics data
+model AnalyticsEvent {
+  id          String   @id @default(cuid())
+  userId      String?
+  eventType   String
+  eventName   String
+  properties  String?  // JSON properties
+  sessionId   String?
+  timestamp   DateTime @default(now())
+  ipAddress   String?
+  userAgent   String?
+
+  @@map("analytics_events")
+}
+
+// System settings
+model SystemSetting {
+  id          String   @id @default(cuid())
+  key         String   @unique
+  value       String
+  description String?
+  category    String?
+  updatedAt   DateTime @updatedAt
+  updatedBy   String?
+
+  @@map("system_settings")
 }
