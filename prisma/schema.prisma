@@ -6,7 +6,7 @@ generator client {
 }
 
 datasource db {
-  provider = "postgresql"
+  provider = "sqlite"
   url      = env("DATABASE_URL")
 }
 
@@ -19,8 +19,8 @@ model Student {
   educationLevel        String                  // "primary" or "secondary"
   school                String
   grade                 String
-  subjects              String[]
-  csecSubjects          String[]
+  subjects              String?                 // JSON string array
+  csecSubjects          String?                 // JSON string array
   careerGoals           String?
   parentName            String
   parentPhone           String
@@ -98,8 +98,8 @@ model Volunteer {
   phone                     String
   address                   String
   occupation                String
-  expertise                 String[]
-  availability              String[]
+  expertise                 String?   // JSON string array
+  availability              String?   // JSON string array
   backgroundCheckCompleted  Boolean   @default(false)
   backgroundCheckDate       DateTime?
   joinedAt                  DateTime  @default(now())
@@ -118,7 +118,7 @@ model Session {
   startTime   String
   endTime     String
   subject     String
-  topics      String[]
+  topics      String?   // JSON string array
   notes       String?
   status      String    @default("scheduled")
   
@@ -153,7 +153,7 @@ model Assessment {
   maxScore        Int
   percentage      Float
   grade           String?
-  topicsAssessed  String[]
+  topicsAssessed  String?  // JSON string array
   strengths       String?
   weaknesses      String?
   notes           String?
@@ -176,7 +176,7 @@ model Parent {
   address         String
   occupation      String?
   relationship    String   // "mother", "father", "guardian"
-  studentIds      String[]
+  studentIds      String?  // JSON string array
   
   createdAt       DateTime @default(now())
   updatedAt       DateTime @updatedAt

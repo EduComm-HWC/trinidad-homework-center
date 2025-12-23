@@ -1,0 +1,149 @@
+   ▲ Next.js 15.3.5
+   - Local:        http://localhost:3000
+   - Network:      http://21.0.2.160:3000
+   - Environments: .env
+
+ ✓ Starting...
+Attention: Next.js now collects completely anonymous telemetry regarding usage.
+This information is used to shape Next.js' roadmap and prioritize features.
+You can learn more, including how to opt-out if you'd not like to participate in this anonymous program, by visiting the following URL:
+https://nextjs.org/telemetry
+
+ ✓ Ready in 2.8s
+ ○ Compiling / ...
+ ✓ Compiled / in 5.9s (766 modules)
+ GET / 200 in 3164ms
+ ✓ Compiled in 397ms (360 modules)
+ GET / 200 in 176ms
+ ✓ Compiled in 262ms (360 modules)
+ GET / 200 in 20ms
+ ✓ Compiled in 259ms (360 modules)
+ GET / 200 in 16ms
+ ✓ Compiled in 233ms (360 modules)
+ GET / 200 in 26ms
+ ✓ Compiled in 241ms (360 modules)
+ GET / 200 in 164ms
+ ✓ Compiled in 247ms (360 modules)
+ GET / 200 in 162ms
+ ✓ Compiled in 249ms (360 modules)
+ GET / 200 in 20ms
+ ✓ Compiled in 229ms (360 modules)
+ GET / 200 in 158ms
+ ✓ Compiled in 340ms (360 modules)
+ GET / 200 in 25ms
+ ✓ Compiled in 223ms (360 modules)
+ GET / 200 in 28ms
+ ✓ Compiled in 287ms (360 modules)
+ GET / 200 in 147ms
+ ✓ Compiled in 293ms (360 modules)
+ GET / 200 in 26ms
+ ✓ Compiled in 222ms (360 modules)
+ GET / 200 in 20ms
+ ✓ Compiled in 501ms (734 modules)
+ GET / 200 in 59ms
+ ✓ Compiled in 360ms (360 modules)
+ GET / 200 in 160ms
+ ✓ Compiled in 398ms (734 modules)
+ GET / 200 in 31ms
+ GET / 200 in 129ms
+ ✓ Compiled in 306ms (360 modules)
+ GET / 200 in 176ms
+ ✓ Compiled in 1157ms (806 modules)
+ GET / 200 in 73ms
+ ✓ Compiled in 244ms (389 modules)
+ GET / 200 in 28ms
+ ✓ Compiled in 319ms (389 modules)
+ GET / 200 in 182ms
+ ✓ Compiled in 239ms (389 modules)
+ GET / 200 in 181ms
+ ✓ Compiled in 247ms (389 modules)
+ GET / 200 in 27ms
+ ✓ Compiled in 453ms (389 modules)
+ GET / 200 in 33ms
+ ✓ Compiled in 307ms (389 modules)
+ GET / 200 in 162ms
+ ✓ Compiled in 228ms (389 modules)
+ ✓ Compiled in 161ms (389 modules)
+ GET / 200 in 181ms
+ GET / 200 in 335ms
+ ✓ Compiled in 230ms (389 modules)
+ GET / 200 in 28ms
+ ✓ Compiled in 304ms (389 modules)
+ ✓ Compiled in 170ms (389 modules)
+ GET / 200 in 191ms
+ GET / 200 in 24ms
+ GET / 200 in 107ms
+ GET / 200 in 88ms
+ GET / 200 in 61ms
+ GET / 200 in 52ms
+ GET / 200 in 43ms
+Error: Cannot apply unknown utility class `border-border`. Are you using CSS modules or similar and missing `@reference`? https://tailwindcss.com/docs/functions-and-directives#reference-directive
+    at processTicksAndRejections (null)
+Error: Cannot apply unknown utility class `border-border`. Are you using CSS modules or similar and missing `@reference`? https://tailwindcss.com/docs/functions-and-directives#reference-directive
+    at processTicksAndRejections (null)
+ ⨯ ./src/app/globals.css:1:1
+Syntax error: tailwindcss: /home/z/my-project/src/app/globals.css Cannot apply unknown utility class `border-border`. Are you using CSS modules or similar and missing `@reference`? https://tailwindcss.com/docs/functions-and-directives#reference-directive
+
+> 1 | @tailwind base;
+    | ^
+  2 | @tailwind components;
+  3 | @tailwind utilities;
+ ⚠ Cross origin request detected from preview-chat-1e9018ba-d876-410c-9331-f76aaac533ce.space.z.ai to /_next/* resource. In a future major version of Next.js, you will need to explicitly configure "allowedDevOrigins" in next.config to allow this.
+Read more: https://nextjs.org/docs/app/api-reference/config/next-config-js/allowedDevOrigins
+Error: Cannot apply unknown utility class `border-border`. Are you using CSS modules or similar and missing `@reference`? https://tailwindcss.com/docs/functions-and-directives#reference-directive
+    at processTicksAndRejections (null)
+ ○ Compiling /_error ...
+ ⨯ ./src/app/globals.css:1:1
+Syntax error: tailwindcss: /home/z/my-project/src/app/globals.css Cannot apply unknown utility class `border-border`. Are you using CSS modules or similar and missing `@reference`? https://tailwindcss.com/docs/functions-and-directives#reference-directive
+
+> 1 | @tailwind base;
+    | ^
+  2 | @tailwind components;
+  3 | @tailwind utilities;
+ GET / 500 in 6014ms
+ ✓ Compiled /_error in 2.2s (1140 modules)
+ GET / 500 in 2038ms
+ GET / 200 in 630ms
+ GET / 200 in 40ms
+ GET / 200 in 28ms
+ GET / 200 in 44ms
+ GET / 200 in 25ms
+ GET / 200 in 14ms
+ GET / 200 in 29ms
+ GET / 200 in 17ms
+ GET / 200 in 148ms
+ GET / 200 in 58ms
+ GET / 200 in 58ms
+Error: Cannot apply unknown utility class `border-border`. Are you using CSS modules or similar and missing `@reference`? https://tailwindcss.com/docs/functions-and-directives#reference-directive
+    at processTicksAndRejections (null)
+ ⨯ ./src/app/globals.css:1:1
+Syntax error: tailwindcss: /home/z/my-project/src/app/globals.css Cannot apply unknown utility class `border-border`. Are you using CSS modules or similar and missing `@reference`? https://tailwindcss.com/docs/functions-and-directives#reference-directive
+
+> 1 | @tailwind base;
+    | ^
+  2 | @tailwind components;
+  3 | @tailwind utilities;
+Error: Cannot apply unknown utility class `border-border`. Are you using CSS modules or similar and missing `@reference`? https://tailwindcss.com/docs/functions-and-directives#reference-directive
+    at processTicksAndRejections (null)
+ ⨯ ./src/app/globals.css:1:1
+Syntax error: tailwindcss: /home/z/my-project/src/app/globals.css Cannot apply unknown utility class `border-border`. Are you using CSS modules or similar and missing `@reference`? https://tailwindcss.com/docs/functions-and-directives#reference-directive
+
+> 1 | @tailwind base;
+    | ^
+  2 | @tailwind components;
+  3 | @tailwind utilities;
+ GET / 500 in 506ms
+ ○ Compiling /_error ...
+ GET / 500 in 230ms
+ GET / 500 in 231ms
+ GET / 500 in 233ms
+ GET / 500 in 218ms
+ GET / 500 in 214ms
+<w> [webpack.cache.PackFileCacheStrategy] Skipped not serializable cache item 'Compilation/modules|/home/z/my-project/node_modules/next/dist/build/webpack/loaders/css-loader/src/index.js??ruleSet[1].rules[13].oneOf[10].use[2]!/home/z/my-project/node_modules/next/dist/build/webpack/loaders/postcss-loader/src/index.js??ruleSet[1].rules[13].oneOf[10].use[3]!/home/z/my-project/src/app/globals.css': No serializer registered for PostCSSSyntaxError
+<w> while serializing webpack/lib/cache/PackFileCacheStrategy.PackContentItems -> webpack/lib/NormalModule -> webpack/lib/ModuleBuildError -> PostCSSSyntaxError
+Attention: Next.js now collects completely anonymous telemetry regarding usage.
+This information is used to shape Next.js' roadmap and prioritize features.
+You can learn more, including how to opt-out if you'd not like to participate in this anonymous program, by visiting the following URL:
+https://nextjs.org/telemetry
+
+[?25h
