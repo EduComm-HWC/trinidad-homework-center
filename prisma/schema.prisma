@@ -1,8 +1,4 @@
-// This is your Prisma schema file,
-// learn more about it in the docs: https://pris.ly/d/prisma-schema
-
-// Looking for ways to speed up your queries, or scale easily with your serverless or edge functions?
-// Try Prisma Accelerate: https://pris.ly/cli/accelerate-init
+// Trinidad & Tobago Homework Center - Comprehensive Database Schema
 
 generator client {
   provider = "prisma-client-js"
@@ -13,20 +9,404 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
+// User Management
 model User {
   id        String   @id @default(cuid())
   email     String   @unique
   name      String?
+  password  String?
+  role      UserRole @default(STAFF)
+  phone     String?
+  address   String?
+  parish    String?  // Trinidad & Tobago parish
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
+
+  // Relations
+  tutorProfile    TutorProfile?
+  parentProfile   ParentProfile?
+  sessions        Session[]
+  notifications   Notification[]
+  createdStudents Student[] @relation("StudentCreator")
+  files           File[]
+
+  @@map("users")
 }
 
-model Post {
+enum UserRole {
+  ADMIN
+  STAFF
+  TUTOR
+  PARENT
+  STUDENT
+}
+
+// Student Management
+model Student {
+  id                  String   @id @default(cuid())
+  firstName           String
+  lastName            String
+  dateOfBirth         DateTime
+  gender              Gender
+  nationality         String?
+  parish              String?  // Trinidad & Tobago parish
+  address             String?
+  phone               String?
+  email               String?
+  emergencyContact    String?
+  emergencyPhone      String?
+  emergencyRelation   String?
+  medicalConditions   String?  // JSON array of conditions
+  allergies           String?  // JSON array of allergies
+  previousSchool      String?
+  specialEducation    Boolean  @default(false)
+  specialNeeds        String?  // JSON array of needs
+  livingArrangement   String?  // with parents, guardian, etc.
+  guardians           String?  // JSON array of guardian info
+  siblings            String?  // JSON array of sibling info
+  behaviorPatterns    String?  // JSON array of behaviors
+  interests           String?  // JSON array of interests
+  strengths           String?  // JSON array of strengths
+  challenges          String?  // JSON array of challenges
+  breakfast           String?  // typical breakfast
+  bedtime             String?  // typical bedtime
+  screenTime          Int?     // hours per day
+  physicalActivity    Int?     // hours per week
+  photoConsent        Boolean  @default(false)
+  medicalConsent      Boolean  @default(false)
+  assessmentConsent   Boolean  @default(false)
+  createdBy           String?
+  createdAt           DateTime @default(now())
+  updatedAt           DateTime @updatedAt
+
+  // Relations
+  creator      User?     @relation("StudentCreator", fields: [createdBy], references: [id])
+  parentProfile ParentProfile? @relation(fields: [parentProfileId], references: [id])
+  sessions     Session[]
+  assessments  Assessment[]
+  files        File[]
+  reports      StudentReport[]
+  notifications Notification[]
+  parentProfileId String?
+
+  @@map("students")
+}
+
+enum Gender {
+  MALE
+  FEMALE
+  OTHER
+}
+
+// Tutor Management
+model TutorProfile {
+  id              String   @id @default(cuid())
+  userId          String   @unique
+  qualifications  String?  // JSON array of qualifications
+  experience      Int?     // years of experience
+  subjects        String?  // JSON array of subjects
+  availability    String?  // JSON availability schedule
+  maxStudents     Int      @default(10)
+  rating          Float?   @default(0)
+  totalSessions   Int      @default(0)
+  specializations String?  // JSON array of specializations
+  bio             String?
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+
+  // Relations
+  user         User           @relation(fields: [userId], references: [id])
+  sessions     Session[]
+  assessments  Assessment[]
+  files        File[]
+
+  @@map("tutor_profiles")
+}
+
+// Parent Management
+model ParentProfile {
+  id          String   @id @default(cuid())
+  userId      String   @unique
+  occupation  String?
+  workplace   String?
+  income      String?  // income bracket
+  education   String?  // education level
+  maritalStatus String?
+  children    String?  // JSON array of children info
+  notes       String?
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  // Relations
+  user      User      @relation(fields: [userId], references: [id])
+  students  Student[]
+  sessions Session[]
+  files     File[]
+
+  @@map("parent_profiles")
+}
+
+// Session Management
+model Session {
+  id             String       @id @default(cuid())
+  studentId      String
+  tutorId        String
+  parentId       String?
+  subject        String
+  sessionDate    DateTime
+  startTime      DateTime
+  endTime        DateTime
+  duration       Int          // minutes
+  sessionType    SessionType  @default(HOMEWORK)
+  location       String?      // center, home, online
+  status         SessionStatus @default(SCHEDULED)
+  notes          String?
+  homeworkTopics String?      // JSON array
+  materialsUsed  String?      // JSON array
+  learningObjectives String?  // JSON array
+  progress       Float?       // 0-100
+  nextSession   DateTime?
+  createdBy      String?
+  createdAt      DateTime     @default(now())
+  updatedAt      DateTime     @updatedAt
+
+  // Relations
+  student     Student       @relation(fields: [studentId], references: [id])
+  tutor       TutorProfile  @relation(fields: [tutorId], references: [id])
+  parent      ParentProfile? @relation(fields: [parentId], references: [id])
+  creator     User?         @relation(fields: [createdBy], references: [id])
+  assessments Assessment[]
+  files       File[]
+
+  @@map("sessions")
+}
+
+enum SessionType {
+  HOMEWORK
+  TUTORING
+  ASSESSMENT
+  CSEC_PREP
+  REMEDIAL
+  ENRICHMENT
+}
+
+enum SessionStatus {
+  SCHEDULED
+  IN_PROGRESS
+  COMPLETED
+  CANCELLED
+  NO_SHOW
+}
+
+// Comprehensive Assessment System
+model Assessment {
+  id                    String   @id @default(cuid())
+  studentId             String
+  sessionId             String
+  tutorId               String
+  assessmentDate        DateTime @default(now())
+  
+  // Academic Assessment (1-5 scale)
+  preparationScore      Int?     // 1-5
+  homeworkScore         Int?     // 1-5
+  participationScore    Int?     // 1-5
+  understandingScore    Int?     // 1-5
+  topicsCovered         String?  // JSON array
+  
+  // Behavioral Assessment
+  behaviorScore         Int?     // 1-5
+  focusScore            Int?     // 1-5
+  cooperationScore      Int?     // 1-5
+  attitudeScore         Int?     // 1-5
+  peerInteractionScore  Int?     // 1-5
+  
+  // Emotional Assessment
+  emotionalStateScore   Int?     // 1-5
+  confidenceScore       Int?     // 1-5
+  motivationScore       Int?     // 1-5
+  stressIndicators      String?  // JSON array
+  
+  // Physical Assessment
+  energyLevelScore      Int?     // 1-5
+  wellbeingScore        Int?     // 1-5
+  nutritionScore        Int?     // 1-5
+  
+  // Social Assessment
+  communicationScore    Int?     // 1-5
+  teamworkScore         Int?     // 1-5
+  conflictResolutionScore Int?  // 1-5
+  
+  // Cognitive Assessment
+  problemSolvingScore   Int?     // 1-5
+  criticalThinkingScore Int?     // 1-5
+  creativityScore       Int?     // 1-5
+  memoryScore           Int?     // 1-5
+  
+  // Support Needs
+  immediateSupport      String?  // JSON array
+  resourcesNeeded       String?  // JSON array
+  familyInvolvement     String?  // JSON array
+  
+  // Overall Assessment
+  goals                 String?  // JSON array
+  achievements          String?  // JSON array
+  concerns              String?  // JSON array
+  tutorNotes            String?
+  recommendations       String?
+  followUpActions       String?  // JSON array
+  
+  // Calculated Fields
+  overallScore          Float?   // calculated average
+  riskLevel             RiskLevel @default(LOW)
+  
+  createdBy             String?
+  createdAt             DateTime @default(now())
+  updatedAt             DateTime @updatedAt
+
+  // Relations
+  student Student      @relation(fields: [studentId], references: [id])
+  session Session      @relation(fields: [sessionId], references: [id])
+  tutor   TutorProfile @relation(fields: [tutorId], references: [id])
+
+  @@map("assessments")
+}
+
+enum RiskLevel {
+  LOW
+  MEDIUM
+  HIGH
+  CRITICAL
+}
+
+// Reporting System
+model StudentReport {
+  id            String   @id @default(cuid())
+  studentId     String
+  reportType    ReportType
+  title         String
+  description   String?
+  data          String?  // JSON report data
+  startDate     DateTime?
+  endDate       DateTime?
+  generatedBy   String?
+  generatedAt   DateTime @default(now())
+  createdAt     DateTime @default(now())
+
+  // Relations
+  student Student @relation(fields: [studentId], references: [id])
+
+  @@map("student_reports")
+}
+
+enum ReportType {
+  PROGRESS
+  PERFORMANCE
+  ATTENDANCE
+  BEHAVIOR
+  ASSESSMENT
+  SUMMARY
+}
+
+// Notification System
+model Notification {
+  id          String           @id @default(cuid())
+  title       String
+  message     String
+  type        NotificationType
+  priority    Priority         @default(MEDIUM)
+  status      NotificationStatus @default(UNREAD)
+  userId      String?
+  studentId   String?
+  scheduledFor DateTime?
+  sentAt      DateTime?
+  readAt      DateTime?
+  actionUrl   String?
+  actionText  String?
+  metadata    String?          // JSON additional data
+  createdAt   DateTime         @default(now())
+  updatedAt   DateTime         @updatedAt
+
+  // Relations
+  user    User?    @relation(fields: [userId], references: [id])
+  student Student? @relation(fields: [studentId], references: [id])
+
+  @@map("notifications")
+}
+
+enum NotificationType {
+  SESSION_REMINDER
+  ASSESSMENT_ALERT
+  PROGRESS_UPDATE
+  ANNOUNCEMENT
+  SYSTEM
+  URGENT
+}
+
+enum Priority {
+  LOW
+  MEDIUM
+  HIGH
+  URGENT
+}
+
+enum NotificationStatus {
+  UNREAD
+  READ
+  ARCHIVED
+  SCHEDULED
+}
+
+// File Management
+model File {
+  id           String     @id @default(cuid())
+  filename     String
+  originalName String
+  mimeType     String
+  size         Int
+  path         String
+  description  String?
+  category     FileCategory @default(DOCUMENT)
+  userId       String?
+  studentId    String?
+  sessionId    String?
+  tutorProfileId String?
+  parentProfileId String?
+  tags         String?    // JSON array of tags
+  metadata     String?    // JSON additional metadata
+  isPublic     Boolean    @default(false)
+  createdAt    DateTime   @default(now())
+  updatedAt    DateTime   @updatedAt
+
+  // Relations
+  user    User?     @relation(fields: [userId], references: [id])
+  student Student?  @relation(fields: [studentId], references: [id])
+  session Session?  @relation(fields: [sessionId], references: [id])
+  tutorProfile TutorProfile? @relation(fields: [tutorProfileId], references: [id])
+  parentProfile ParentProfile? @relation(fields: [parentProfileId], references: [id])
+
+  @@map("files")
+}
+
+enum FileCategory {
+  DOCUMENT
+  IMAGE
+  VIDEO
+  AUDIO
+  ASSESSMENT
+  REPORT
+  HOMEWORK
+  MATERIAL
+}
+
+// System Settings
+model Setting {
   id        String   @id @default(cuid())
-  title     String
-  content   String?
-  published Boolean  @default(false)
-  authorId  String
+  key       String   @unique
+  value     String?
+  type      String   @default("STRING")
+  category  String?
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
+
+  @@map("settings")
 }
