@@ -32,7 +32,6 @@ const RadioGroupItem = React.forwardRef<
       <Circle className="h-2.5 w-2.5 fill-current" />
     </RadioGroupPrimitive.Indicator>
   </RadioGroupPrimitive.Item>
-  >
 ))
 RadioGroupItem.displayName = RadioGroupPrimitive.Item.displayName
 
