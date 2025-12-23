@@ -457,7 +457,6 @@ export default function ParentPortal() {
                           <Clock className="h-4 w-4" />
                           {new Date(session.date).toLocaleDateString()} • {session.startTime} - {session.endTime}
                         </div>
-                        </div>
                         <div className="flex items-center gap-2">
                           <Users className="h-4 w-4" />
                           Tutor: {session.volunteerName}
@@ -490,8 +489,9 @@ export default function ParentPortal() {
                     No assessments completed yet
                   </p>
                 ) : (
-                  assessments.slice(0, 5).map((assessment) => (
-                    <div key={assessment.id} className="p-4 border rounded-lg bg-gray-50">
+                  <>
+                    {assessments.slice(0, 5).map((assessment) => (
+                      <div key={assessment.id} className="p-4 border rounded-lg bg-gray-50">
                       <div className="flex items-center justify-between mb-2">
                         <h4 className="font-semibold">{assessment.subject}</h4>
                         <Badge className={getGradeColor(assessment.grade)}>
