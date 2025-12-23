@@ -201,7 +201,7 @@ export default function ComprehensiveSessionManagement() {
     } catch (error) {
       toast({
         title: 'Error',
-        description: error.message,
+        description: error instanceof Error ? error.message : 'Unknown error occurred',
         variant: 'destructive',
       })
     }
@@ -227,7 +227,7 @@ export default function ComprehensiveSessionManagement() {
     } catch (error) {
       toast({
         title: 'Error',
-        description: error.message,
+        description: error instanceof Error ? error.message : 'Unknown error occurred',
         variant: 'destructive',
       })
     }

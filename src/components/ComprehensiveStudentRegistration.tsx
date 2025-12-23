@@ -103,7 +103,7 @@ export default function ComprehensiveStudentRegistration() {
     studyHabits: '',
     
     // Step 4: CSEC Subjects
-    csecSubjects: [],
+    csecSubjects: [] as string[],
     preferredCareer: '',
     careerGoals: '',
     
@@ -223,7 +223,7 @@ export default function ComprehensiveStudentRegistration() {
     } catch (error) {
       toast({
         title: 'Registration Error',
-        description: error.message,
+        description: error instanceof Error ? error.message : 'Unknown error occurred',
         variant: 'destructive',
       })
     }

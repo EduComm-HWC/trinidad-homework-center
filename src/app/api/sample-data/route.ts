@@ -114,9 +114,10 @@ const sampleAssessments = [
   }
 ]
 
-export async function GET() {
+export async function GET(request: Request) {
   try {
-    const { type } = await import('@/lib/db').then(mod => mod.db)
+    const { searchParams } = new URL(request.url)
+    const type = searchParams.get('type') || 'students'
     
     switch (type) {
       case 'students':
@@ -143,7 +144,6 @@ export async function GET() {
 export async function POST(request: Request) {
   try {
     const { type, data } = await request.json()
-    const { db } = await import('@/lib/db').then(mod => mod.db)
     
     switch (type) {
       case 'students':

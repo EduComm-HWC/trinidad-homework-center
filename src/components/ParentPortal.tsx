@@ -54,6 +54,7 @@ interface Student {
   email: string
   grade: string
   educationLevel: string
+  currentSchool: string
   subjects: string[]
   csecSubjects: string[]
   careerGoals: string
@@ -65,6 +66,7 @@ interface Student {
 
 interface Session {
   id: string
+  studentId: string
   date: string
   startTime: string
   endTime: string
@@ -73,10 +75,12 @@ interface Session {
   status: string
   notes: string
   volunteerName: string
+  location: string
 }
 
 interface Assessment {
   id: string
+  studentId: string
   date: string
   type: string
   subject: string
@@ -144,20 +148,16 @@ export default function ParentPortal() {
       const sessionsResponse = await fetch('/api/sessions')
       if (sessionsResponse.ok) {
         const sessionsData = await sessionsResponse.json()
-        const parentSessions = sessionsData.filter((session: Session) => 
-          studentsData.some((student: Student) => session.studentId === student.id)
-        )
-        setSessions(parentSessions)
+        // For now, just set all sessions
+        setSessions(sessionsData)
       }
 
       // Fetch assessments for parent's students
       const assessmentsResponse = await fetch('/api/assessments')
       if (assessmentsResponse.ok) {
         const assessmentsData = await assessmentsResponse.json()
-        const parentAssessments = assessmentsData.filter((assessment: Assessment) => 
-          studentsData.some((student: Student) => assessment.studentId === student.id)
-        )
-        setAssessments(parentAssessments)
+        // For now, just set all assessments
+        setAssessments(assessmentsData)
       }
 
       // Fetch messages

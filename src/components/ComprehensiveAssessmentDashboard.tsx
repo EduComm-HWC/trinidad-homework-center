@@ -264,7 +264,7 @@ export default function ComprehensiveAssessmentDashboard() {
     } catch (error) {
       toast({
         title: 'Error',
-        description: error.message,
+        description: error instanceof Error ? error.message : 'Unknown error occurred',
         variant: 'destructive',
       })
     }
@@ -308,7 +308,7 @@ export default function ComprehensiveAssessmentDashboard() {
     } catch (error) {
       toast({
         title: 'Error',
-        description: error.message,
+        description: error instanceof Error ? error.message : 'Unknown error occurred',
         variant: 'destructive',
       })
     }
@@ -605,7 +605,6 @@ export default function ComprehensiveAssessmentDashboard() {
                             className="mt-2" 
                           />
                         </div>
-                        </div>
                         <div className="col-span-2">
                           <div className="text-sm font-medium mb-2">Notes</div>
                           <p className="text-sm text-gray-600">
@@ -690,7 +689,6 @@ export default function ComprehensiveAssessmentDashboard() {
                         </SelectContent>
                       </Select>
                     </div>
-                    </div>
                     <div className="space-y-2">
                       <Label htmlFor="type">Assessment Type *</Label>
                       <Select value={newAssessment.type} onValueChange={(value) => setNewAssessment(prev => ({ ...prev, type: value as any }))}>
@@ -705,7 +703,6 @@ export default function ComprehensiveAssessmentDashboard() {
                           <SelectItem value="csec_practice">CSEC Practice</SelectItem>
                         </SelectContent>
                       </Select>
-                    </div>
                     </div>
                   </div>
 
@@ -747,7 +744,7 @@ export default function ComprehensiveAssessmentDashboard() {
                                   min="0"
                                   max={getMaxScore(category)}
                                   value={assessmentScores[category] || 0}
-                                  onChange={(e) => setAssessmentScores(prev => ({ ...prev, [category]: parseInt(e.target.value) || 0 }))}
+                                  onChange={(e) => setAssessmentScores((prev: any) => ({ ...prev, [category]: parseInt(e.target.value) || 0 }))}
                                   placeholder="0"
                                   className="w-20"
                                 />
