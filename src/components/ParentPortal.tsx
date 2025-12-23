@@ -489,7 +489,7 @@ export default function ParentPortal() {
                     No assessments completed yet
                   </p>
                 ) : (
-                  <>
+                  <div>
                     {assessments.slice(0, 5).map((assessment) => (
                       <div key={assessment.id} className="p-4 border rounded-lg bg-gray-50">
                       <div className="flex items-center justify-between mb-2">
@@ -520,7 +520,8 @@ export default function ParentPortal() {
                         </div>
                       )}
                     </div>
-                  ))
+                    ))}
+                  </div>
                 )}
               </div>
             </CardContent>
