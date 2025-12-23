@@ -2,21 +2,41 @@
 
 import { useState, useEffect } from 'react'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
-import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
+import { Input } from '@/components/ui/input'
+import { Label } from '@/components/ui/label'
+import { Textarea } from '@/components/ui/textarea'
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
+import { Checkbox } from '@/components/ui/checkbox'
+import { Badge } from '@/components/ui/badge'
 import { useToast } from '@/components/ui/use-toast'
-import { Users, Mail, Phone, School, Trash2 } from 'lucide-react'
+import { 
+  Users,
+  UserPlus,
+  Search,
+  Filter,
+  Trash2,
+  Edit,
+  Eye,
+  Download,
+  Mail,
+  Phone,
+  BookOpen,
+  Target,
+  Calendar
+} from 'lucide-react'
 
 interface Student {
   id: string
   firstName: string
   lastName: string
-  age: number
-  educationLevel: string
-  school: string
+  email: string
   grade: string
+  educationLevel: string
+  currentSchool: string
+  subjects: string[]
   csecSubjects: string[]
-  careerGoals: string | null
+  careerGoals: string
   parentName: string
   parentPhone: string
   parentEmail: string
@@ -25,8 +45,21 @@ interface Student {
 
 export default function StudentsTab() {
   const [students, setStudents] = useState<Student[]>([])
-  const [loading, setLoading] = useState(true)
+  const [searchTerm, setSearchTerm] = useState('')
+  const [selectedGrade, setSelectedGrade] = useState('')
+  const [selectedLevel, setSelectedLevel] = useState('')
+  const [loading, setLoading] = useState(false)
   const { toast } = useToast()
+
+  const grades = ['Standard 1', 'Standard 2', 'Standard 3', 'Standard 4', 'Standard 5', 'Form 1', 'Form 2', 'Form 3', 'Form 4', 'Form 5', 'Form 6']
+  const educationLevels = ['Primary', 'Secondary']
+  
+  const csecSubjects = [
+    'Mathematics', 'English Language', 'English Literature', 'Physics', 'Chemistry', 'Biology',
+    'History', 'Geography', 'Social Studies', 'Spanish', 'French',
+    'Information Technology', 'Economics', 'Principles of Accounts', 'Principles of Business',
+    'Visual Arts', 'Music', 'Physical Education', 'Technical Drawing', 'Home Economics'
+  ]
 
   useEffect(() => {
     fetchStudents()
@@ -35,17 +68,18 @@ export default function StudentsTab() {
   const fetchStudents = async () => {
     try {
       const response = await fetch('/api/students')
-      if (!response.ok) throw new Error('Failed to fetch students')
-      const data = await response.json()
-      setStudents(data)
+      if (response.ok) {
+        const data = await response.json()
+        setStudents(data)
+      } else {
+        throw new Error('Failed to fetch students')
+      }
     } catch (error) {
       toast({
         title: 'Error',
-        description: 'Failed to load students',
+        description: 'Failed to fetch students',
         variant: 'destructive',
       })
-    } finally {
-      setLoading(false)
     }
   }
 
@@ -57,140 +91,184 @@ export default function StudentsTab() {
         method: 'DELETE',
       })
 
-      if (!response.ok) throw new Error('Failed to delete student')
-
-      toast({
-        title: 'Success',
-        description: 'Student deleted successfully',
-      })
-
-      fetchStudents()
+      if (response.ok) {
+        toast({
+          title: 'Success',
+          description: 'Student deleted successfully',
+        })
+        fetchStudents()
+      } else {
+        throw new Error('Failed to delete student')
+      }
     } catch (error) {
       toast({
         title: 'Error',
-        description: 'Failed to delete student',
+        description: error instanceof Error ? error.message : 'Unknown error occurred',
         variant: 'destructive',
       })
     }
   }
 
-  if (loading) {
-    return (
-      <Card>
-        <CardContent className="pt-6">
-          <p className="text-center text-muted-foreground">Loading students...</p>
-        </CardContent>
-      </Card>
-    )
+  const filteredStudents = students.filter(student => {
+    const matchesSearch = student.firstName.toLowerCase().includes(searchTerm.toLowerCase()) ||
+                         student.lastName.toLowerCase().includes(searchTerm.toLowerCase()) ||
+                         student.email.toLowerCase().includes(searchTerm.toLowerCase())
+    
+    const matchesGrade = !selectedGrade || student.grade === selectedGrade
+    const matchesLevel = !selectedLevel || student.educationLevel === selectedLevel
+
+    return matchesSearch && matchesGrade && matchesLevel
+  })
+
+  const getGradeColor = (grade: string): string => {
+    if (grade.includes('Standard')) return 'bg-blue-100 text-blue-800'
+    if (grade.includes('Form')) return 'bg-green-100 text-green-800'
+    return 'bg-gray-100 text-gray-800'
   }
 
-  if (students.length === 0) {
-    return (
-      <Card>
-        <CardHeader>
-          <CardTitle>Student Directory</CardTitle>
-          <CardDescription>No students registered yet</CardDescription>
-        </CardHeader>
-        <CardContent>
-          <p className="text-sm text-muted-foreground">
-            Start by registering your first student using the Registration tab
-          </p>
-        </CardContent>
-      </Card>
-    )
+  const getLevelColor = (level: string): string => {
+    if (level === 'Primary') return 'bg-purple-100 text-purple-800'
+    if (level === 'Secondary') return 'bg-orange-100 text-orange-800'
+    return 'bg-gray-100 text-gray-800'
   }
 
   return (
-    <div className="space-y-4">
-      <Card>
-        <CardHeader>
-          <CardTitle>Student Directory</CardTitle>
-          <CardDescription>
-            {students.length} student{students.length !== 1 ? 's' : ''} registered
-          </CardDescription>
-        </CardHeader>
-      </Card>
+    <div className="space-y-6">
+      <div className="flex justify-between items-center">
+        <h2 className="text-2xl font-bold">Students</h2>
+        <div className="flex gap-2">
+          <div className="relative">
+            <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-gray-400" />
+            <Input
+              placeholder="Search students..."
+              value={searchTerm}
+              onChange={(e) => setSearchTerm(e.target.value)}
+              className="pl-10"
+            />
+          </div>
+          <Select value={selectedGrade} onValueChange={setSelectedGrade}>
+            <SelectTrigger className="w-40">
+              <SelectValue placeholder="All Grades" />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="">All Grades</SelectItem>
+              {grades.map((grade) => (
+                <SelectItem key={grade} value={grade}>{grade}</SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
+          <Select value={selectedLevel} onValueChange={setSelectedLevel}>
+            <SelectTrigger className="w-40">
+              <SelectValue placeholder="All Levels" />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="">All Levels</SelectItem>
+              {educationLevels.map((level) => (
+                <SelectItem key={level} value={level}>{level}</SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
+        </div>
+      </div>
 
-      <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
-        {students.map((student) => (
-          <Card key={student.id} className="relative">
-            <CardHeader>
-              <div className="flex items-start justify-between">
-                <div className="flex-1">
-                  <CardTitle className="text-lg">
-                    {student.firstName} {student.lastName}
-                  </CardTitle>
-                  <CardDescription className="mt-1">
-                    Age {student.age} • {student.grade}
-                  </CardDescription>
-                </div>
-                <Button
-                  variant="ghost"
-                  size="icon"
-                  onClick={() => handleDelete(student.id)}
-                  className="text-red-600 hover:text-red-700 hover:bg-red-50"
-                >
-                  <Trash2 className="h-4 w-4" />
-                </Button>
-              </div>
-              
-              <div className="flex gap-2 mt-2">
-                <Badge variant={student.educationLevel === 'primary' ? 'secondary' : 'default'}>
-                  {student.educationLevel === 'primary' ? 'Primary' : 'Secondary'}
-                </Badge>
-              </div>
-            </CardHeader>
-
-            <CardContent className="space-y-3">
-              <div className="flex items-center gap-2 text-sm">
-                <School className="h-4 w-4 text-muted-foreground" />
-                <span className="text-muted-foreground">{student.school}</span>
-              </div>
-
-              {student.csecSubjects && student.csecSubjects.length > 0 && (
-                <div className="space-y-1">
-                  <p className="text-sm font-medium">CSEC Subjects:</p>
-                  <div className="flex flex-wrap gap-1">
-                    {student.csecSubjects.slice(0, 3).map((subject) => (
-                      <Badge key={subject} variant="outline" className="text-xs">
-                        {subject}
-                      </Badge>
-                    ))}
-                    {student.csecSubjects.length > 3 && (
-                      <Badge variant="outline" className="text-xs">
-                        +{student.csecSubjects.length - 3} more
-                      </Badge>
-                    )}
+      {/* Students Grid */}
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+        {filteredStudents.length === 0 ? (
+          <div className="col-span-full">
+            <Card>
+              <CardContent className="text-center py-12">
+                <Users className="mx-auto h-12 w-12 text-gray-400 mb-4" />
+                <h3 className="text-lg font-semibold text-gray-900 mb-2">No Students Found</h3>
+                <p className="text-gray-600">
+                  {searchTerm || selectedGrade || selectedLevel 
+                    ? 'Try adjusting your filters' 
+                    : 'Start by registering your first student'}
+                </p>
+              </CardContent>
+            </Card>
+          </div>
+        ) : (
+          filteredStudents.map((student) => (
+            <Card key={student.id} className="hover:shadow-lg transition-shadow">
+              <CardContent className="p-6">
+                <div className="flex justify-between items-start mb-4">
+                  <div>
+                    <h3 className="text-lg font-semibold">
+                      {student.firstName} {student.lastName}
+                    </h3>
+                    <p className="text-sm text-gray-600">{student.email}</p>
+                  </div>
+                  <div className="flex gap-2">
+                    <Badge className={getGradeColor(student.grade)}>
+                      {student.grade}
+                    </Badge>
+                    <Badge className={getLevelColor(student.educationLevel)}>
+                      {student.educationLevel}
+                    </Badge>
                   </div>
                 </div>
-              )}
 
-              {student.careerGoals && (
-                <div className="space-y-1">
-                  <p className="text-sm font-medium">Career Goals:</p>
-                  <p className="text-sm text-muted-foreground line-clamp-2">
-                    {student.careerGoals}
-                  </p>
-                </div>
-              )}
-
-              <div className="pt-3 border-t space-y-2">
-                <p className="text-xs font-medium text-muted-foreground">Parent/Guardian:</p>
-                <p className="text-sm font-medium">{student.parentName}</p>
-                <div className="flex flex-col gap-1 text-xs text-muted-foreground">
-                  <div className="flex items-center gap-2">
-                    <Phone className="h-3 w-3" />
-                    <span>{student.parentPhone}</span>
+                <div className="grid grid-cols-2 gap-4 text-sm">
+                  <div>
+                    <span className="font-medium">School:</span>
+                    <p className="text-gray-600">{student.currentSchool || 'N/A'}</p>
                   </div>
-                  <div className="flex items-center gap-2">
-                    <Mail className="h-3 w-3" />
-                    <span className="truncate">{student.parentEmail}</span>
+                  <div>
+                    <span className="font-medium">Parent:</span>
+                    <p className="text-gray-600">{student.parentName}</p>
+                  </div>
+                  <div>
+                    <span className="font-medium">Phone:</span>
+                    <p className="text-gray-600">{student.parentPhone}</p>
+                  </div>
+                  <div>
+                    <span className="font-medium">Email:</span>
+                    <p className="text-gray-600">{student.parentEmail}</p>
                   </div>
                 </div>
-              </div>
-            </CardContent>
-          </Card>
-        ))}
+
+                {student.careerGoals && (
+                  <div className="mt-4">
+                    <span className="font-medium">Career Goals:</span>
+                    <p className="text-sm text-gray-600 mt-1">{student.careerGoals}</p>
+                  </div>
+                )}
+
+                {student.csecSubjects && student.csecSubjects.length > 0 && (
+                  <div className="mt-4">
+                    <span className="font-medium">CSEC Subjects:</span>
+                    <div className="flex flex-wrap gap-1 mt-2">
+                      {student.csecSubjects.map((subject) => (
+                        <Badge key={subject} variant="outline" className="text-xs">
+                          {subject}
+                        </Badge>
+                      ))}
+                    </div>
+                  </div>
+                )}
+
+                <div className="flex justify-end gap-2 mt-6">
+                  <Button variant="outline" size="sm">
+                    <Eye className="mr-2 h-4 w-4" />
+                    View Details
+                  </Button>
+                  <Button variant="outline" size="sm">
+                    <Edit className="mr-2 h-4 w-4" />
+                    Edit
+                  </Button>
+                  <Button 
+                    variant="destructive" 
+                    size="sm"
+                    onClick={() => handleDelete(student.id)}
+                  >
+                    <Trash2 className="mr-2 h-4 w-4" />
+                    Delete
+                  </Button>
+                </div>
+              </CardContent>
+            </Card>
+          ))
+        )}
       </div>
     </div>
   )
